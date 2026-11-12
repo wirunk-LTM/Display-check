@@ -288,7 +288,7 @@ input:disabled{opacity:.6}
 /* =====================================================================
  *  ตั้งค่า: วาง URL ของ Apps Script Web App (ลงท้ายด้วย /exec) ตรงนี้
  * ===================================================================== */
-const API_URL = 'https://script.google.com/macros/s/AKfycby_BfpZyabR1Q2eDxGHNsMZmF9VFyDDJKVxJahfwIB5YyrmtMp1j2690TSw2rfOSqOg/exec';
+const API_URL = 'PASTE_YOUR_WEB_APP_URL_HERE';
 const POLL_MS = 30000;          // ดึงข้อมูลใหม่ทุก 30 วินาที
 /* ===================================================================== */
 
@@ -347,9 +347,10 @@ const reviewers = () => S.accounts.filter(a=>a.role==='reviewer');
 const visuals = t => [...(t.images||[]), ...(t.pages||[])];
 function nameOf(id, fallback){
   if (S.me && id===S.me.id) return 'คุณ';
-  if (id==='admin') return 'หัวหน้า';
-  if (id==='ceo') return 'ผู้บริหาร';
-  const a=accById(id); return a ? a.name : (fallback || 'ผู้ใช้');
+  if (S.people && S.people[id]) return S.people[id];
+  const a=accById(id); if (a) return a.name;
+  if (fallback) return fallback;
+  return id==='admin' ? 'หัวหน้า' : id==='ceo' ? 'ผู้บริหาร' : 'ผู้ใช้';
 }
 function avatar(id, name){
   name = name || nameOf(id);
@@ -404,7 +405,7 @@ const errText = e => (e && e.message) || 'บันทึกไม่สำเ�
 
 function applySync(d){
   S.me=d.me; S.templates=(d.templates||[]).sort((a,b)=>b.createdAt-a.createdAt);
-  S.accounts=d.accounts||[]; S.subs=d.submissions||[]; S.ready=true; S.error='';
+  S.accounts=d.accounts||[]; S.people=d.people||{}; S.subs=d.submissions||[]; S.ready=true; S.error='';
 }
 let syncing=false;
 async function sync(){
