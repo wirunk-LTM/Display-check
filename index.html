@@ -288,8 +288,7 @@ input:disabled{opacity:.6}
 /* =====================================================================
  *  ตั้งค่า: วาง URL ของ Apps Script Web App (ลงท้ายด้วย /exec) ตรงนี้
  * ===================================================================== */
-const API_URL = 'https://script.google.com/macros/s/AKfycby_BfpZyabR1Q2eDxGHNsMZmF9VFyDDJKVxJahfwIB5YyrmtMp1j2690TSw2rfOSqOg/exec';
-const POLL_MS = 30000;          // ดึงข้อมูลใหม่ทุก 30 วินาที
+const API_URL = 'PASTE_YOUR_WEB_APP_URL_HERE';
 /* ===================================================================== */
 
 const MAX_PHOTOS = 8, MAX_PAGES = 40;
@@ -407,15 +406,25 @@ function applySync(d){
   S.me=d.me; S.templates=(d.templates||[]).sort((a,b)=>b.createdAt-a.createdAt);
   S.accounts=d.accounts||[]; S.people=d.people||{}; S.subs=d.submissions||[]; S.ready=true; S.error='';
 }
-let syncing=false;
-async function sync(){
+let syncing=false, lastKey='', pendingRender=false;
+async function sync(force){
   if (!S.token || syncing) return;
   syncing=true;
-  try{ applySync(await api('sync')); }
+  const hadError=S.error; let changed=true;
+  try{
+    const d=await api('sync');
+    const key=JSON.stringify([d.me,d.templates,d.accounts,d.people,d.submissions]);
+    changed = force===true || key!==lastKey || !S.ready; lastKey=key;
+    applySync(d);
+  }
   catch(e){ if (e.code!=='auth') S.error=e.message; }
   finally{ syncing=false; }
+  if (!changed && hadError===S.error) return;           // ไม่มีอะไรใหม่ ไม่ต้องวาดหน้าใหม่
+  const a=document.activeElement;
+  if (a && $('#app').contains(a) && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)){ pendingRender=true; renderChrome(); if (S.open) refreshOpen(); return; }
   render();
 }
+document.addEventListener('focusout',()=>{ setTimeout(()=>{ if (pendingRender && !(document.activeElement && $('#app').contains(document.activeElement) && /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName))){ pendingRender=false; render(); } },0); });
 function upsertSub(s){ const i=S.subs.findIndex(x=>x.id===s.id); if (i===-1) S.subs.push(s); else S.subs[i]=s; }
 
 /* ---------- login ---------- */
@@ -458,6 +467,7 @@ function renderChrome(){
   role_.replaceChildren(); tabs.replaceChildren();
   if (!S.me) return;
   role_.append(h('span',{class:'me'}, h('img',{src:avatar(S.me.id,S.me.name),alt:''}), h('span',{}, h('b',{text:S.me.name}), ' · '+ROLE_LABEL[role()])),
+    h('button',{class:'btn small',title:'ดึงข้อมูลล่าสุด',onclick:async(e)=>{ const b=e.currentTarget; b.disabled=true; b.textContent='กำลังอัปเดต…'; await sync(true); b.disabled=false; b.textContent='↻ อัปเดต'; },text:'↻ อัปเดต'}),
     h('button',{class:'btn small',onclick:logout,text:'ออกจากระบบ'}));
   const cur = S.view==='template' ? 'templates' : S.view;
   const tab=(key,label,extra)=>h('a',{class:'tab',href:'#'+key,'aria-current':cur===key?'page':null},label,extra||null);
@@ -975,7 +985,6 @@ async function deleteSub(s){
   }
   route();
   if (S.token) sync();
-  setInterval(()=>{ if (document.visibilityState==='visible' && S.token) sync(); }, POLL_MS);
   document.addEventListener('visibilitychange',()=>{ if (document.visibilityState==='visible' && S.token) sync(); });
 })();
 </script>
