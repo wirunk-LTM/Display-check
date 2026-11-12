@@ -1,0 +1,982 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Display Check</title>
+<meta name="theme-color" content="#24566A">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext y=%22.9em%22 font-size=%2290%22%3E%F0%9F%9B%8B%EF%B8%8F%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EEF1F0; --surface:#FFFFFF; --sunk:#E3E8E6; --ink:#1D2629; --muted:#5B696E; --line:#D3DBD9;
+  --accent:#24566A; --accent-ink:#FFFFFF; --accent-soft:#DCE8EC;
+  --ok:#2C7350; --ok-bg:#DFF0E6; --warn:#8A5F00; --warn-bg:#FAEFC8; --bad:#A03C29; --bad-bg:#F7E0D9;
+  --shadow:0 1px 0 rgba(29,38,41,.06), 0 6px 18px -10px rgba(29,38,41,.25);
+  --head:"Anuphan", "IBM Plex Sans Thai", "Noto Sans Thai", "Leelawadee UI", Tahoma, sans-serif;
+  --body:"IBM Plex Sans Thai", "Noto Sans Thai", "Leelawadee UI", Tahoma, sans-serif;
+  color-scheme: light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#131A1C; --surface:#1C2427; --sunk:#172022; --ink:#E5ECEA; --muted:#97A6AA; --line:#2E3A3D;
+    --accent:#86BCD0; --accent-ink:#0E1A1E; --accent-soft:#1F3640;
+    --ok:#7FCFA1; --ok-bg:#1A3326; --warn:#E9C766; --warn-bg:#362D12; --bad:#F09A85; --bad-bg:#3B1F18;
+    --shadow:0 1px 0 rgba(0,0,0,.3), 0 8px 20px -12px rgba(0,0,0,.7);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#131A1C; --surface:#1C2427; --sunk:#172022; --ink:#E5ECEA; --muted:#97A6AA; --line:#2E3A3D;
+  --accent:#86BCD0; --accent-ink:#0E1A1E; --accent-soft:#1F3640;
+  --ok:#7FCFA1; --ok-bg:#1A3326; --warn:#E9C766; --warn-bg:#362D12; --bad:#F09A85; --bad-bg:#3B1F18;
+  --shadow:0 1px 0 rgba(0,0,0,.3), 0 8px 20px -12px rgba(0,0,0,.7);
+  color-scheme: dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 120px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+img{max-width:100%;display:block}
+button,input,textarea,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
+.top-in{max-width:1100px;margin:0 auto;padding:14px 20px 0}
+.brand{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand h1{font-family:var(--head);font-weight:700;font-size:1.5rem;letter-spacing:-.01em;margin:0;line-height:1.2}
+.role{font-size:.85rem;color:var(--muted);display:flex;align-items:center;gap:10px}
+.linkbtn{background:none;border:0;padding:0;color:var(--accent);cursor:pointer;text-decoration:underline;text-underline-offset:3px;font-size:.85rem}
+.tabs{display:flex;gap:4px;margin-top:10px;overflow-x:auto}
+.tab{appearance:none;border:0;background:none;padding:10px 14px 12px;font-family:var(--head);font-weight:600;font-size:1rem;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+.tab[aria-current="page"]{color:var(--ink);border-bottom-color:var(--accent)}
+.count{background:var(--warn-bg);color:var(--warn);border-radius:99px;font-size:.75rem;padding:0 8px;line-height:1.6;font-family:var(--body);font-weight:600}
+
+main{max-width:1100px;margin:0 auto;padding:24px 20px 64px}
+.banner{background:var(--warn-bg);color:var(--warn);padding:10px 14px;border-radius:8px;margin-bottom:18px;font-size:.92rem}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px;flex-wrap:wrap}
+.bar h2{font-family:var(--head);font-size:1.25rem;margin:0;font-weight:600}
+.hint{color:var(--muted);font-size:.92rem;margin:4px 0 0;max-width:62ch}
+
+.btn{appearance:none;border:1px solid var(--line);background:var(--surface);padding:9px 16px;border-radius:8px;cursor:pointer;font-weight:500;display:inline-flex;align-items:center;gap:8px;line-height:1.3;text-decoration:none}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.primary:hover{filter:brightness(1.07)}
+.btn.ok{background:var(--ok);color:var(--surface);border-color:var(--ok)}
+.btn.bad{background:var(--surface);color:var(--bad);border-color:var(--bad)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.small{padding:5px 11px;font-size:.88rem}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:20px}
+.card{background:var(--surface);border-radius:10px;box-shadow:var(--shadow);overflow:hidden;cursor:pointer;text-align:left;border:0;padding:0;display:flex;flex-direction:column;text-decoration:none;color:inherit}
+.card:hover .cover img{transform:scale(1.02)}
+.cover{aspect-ratio:4/3;background:var(--sunk);overflow:hidden;position:relative}
+.cover img{width:100%;height:100%;object-fit:cover;transition:transform .3s}
+.cover .n{position:absolute;right:10px;bottom:10px;background:rgba(15,22,24,.72);color:#fff;font-size:.78rem;padding:2px 9px;border-radius:99px}
+.card-b{padding:12px 14px 14px;display:flex;flex-direction:column;gap:6px}
+.card-b h3{font-family:var(--head);font-weight:600;font-size:1.08rem;margin:0;line-height:1.35}
+.meta{color:var(--muted);font-size:.85rem}
+
+.badge{display:inline-block;font-size:.8rem;font-weight:600;padding:1px 10px;border-radius:99px;width:fit-content}
+.badge.pending{background:var(--warn-bg);color:var(--warn)}
+.badge.approved{background:var(--ok-bg);color:var(--ok)}
+.badge.rework{background:var(--bad-bg);color:var(--bad)}
+
+.empty{background:var(--surface);border:1.5px dashed var(--line);border-radius:12px;padding:40px 24px;text-align:center;color:var(--muted)}
+.empty strong{display:block;color:var(--ink);font-family:var(--head);font-size:1.1rem;margin-bottom:4px}
+.empty .btn{margin-top:14px}
+
+/* detail */
+.back{display:inline-flex;margin-bottom:14px;color:var(--muted);text-decoration:none;font-size:.92rem}
+.back:hover{color:var(--ink)}
+.detail{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:28px;align-items:start}
+@media (max-width:820px){.detail{grid-template-columns:1fr}}
+.hero{background:var(--sunk);border-radius:10px;overflow:hidden;cursor:zoom-in;aspect-ratio:4/3}
+.hero img{width:100%;height:100%;object-fit:contain}
+.thumbs{display:flex;gap:8px;margin-top:10px;overflow-x:auto;padding-bottom:4px}
+.thumbs button{border:2px solid transparent;padding:0;border-radius:6px;overflow:hidden;width:78px;height:60px;flex:none;cursor:pointer;background:var(--sunk)}
+.thumbs button[aria-pressed="true"]{border-color:var(--accent)}
+.thumbs img{width:100%;height:100%;object-fit:cover}
+.side h2{font-family:var(--head);font-size:1.6rem;line-height:1.25;margin:0 0 8px;font-weight:700}
+.notes{white-space:pre-wrap;margin:0 0 16px;max-width:60ch}
+.checklist{list-style:none;padding:0;margin:0 0 20px;border-top:1px solid var(--line)}
+.checklist li{padding:9px 0 9px 30px;border-bottom:1px solid var(--line);position:relative}
+.checklist li::before{content:"";position:absolute;left:4px;top:14px;width:14px;height:14px;border:2px solid var(--accent);border-radius:3px}
+.section-t{font-family:var(--head);font-weight:600;font-size:1rem;margin:22px 0 10px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+
+/* submission rows */
+.rows{display:flex;flex-direction:column;gap:12px}
+.row{background:var(--surface);border-radius:10px;box-shadow:var(--shadow);padding:12px;display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;border:0;text-align:left;width:100%;cursor:default;color:inherit}
+button.row{cursor:pointer}
+button.row:hover{outline:1px solid var(--line)}
+.row .ph{display:flex;gap:4px}
+.row .ph img{width:64px;height:64px;object-fit:cover;border-radius:6px;background:var(--sunk)}
+.row h4{margin:0;font-family:var(--head);font-weight:600;font-size:1rem;line-height:1.35}
+.row .r-end{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+@media (max-width:600px){.row{grid-template-columns:auto 1fr}.row .r-end{grid-column:1/-1;flex-direction:row;justify-content:space-between;align-items:center}.row .ph img:nth-child(n+2){display:none}}
+.person{display:inline-flex;align-items:center;gap:6px}
+.person img{width:20px;height:20px;border-radius:50%}
+.feedback{margin-top:8px;padding:8px 12px;border-left:3px solid var(--bad);background:var(--bad-bg);border-radius:0 6px 6px 0;font-size:.92rem;white-space:pre-wrap}
+.feedback.ok{border-color:var(--ok);background:var(--ok-bg)}
+
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:4px 14px;cursor:pointer;font-size:.9rem}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+
+/* dialogs */
+dialog{border:0;padding:0;background:var(--surface);color:var(--ink);border-radius:14px;width:min(640px,calc(100vw - 24px));max-height:calc(100dvh - 24px);box-shadow:0 30px 80px -20px rgba(0,0,0,.5)}
+dialog.wide{width:min(1100px,calc(100vw - 24px))}
+dialog::backdrop{background:rgba(10,16,18,.55)}
+.dlg{display:flex;flex-direction:column;max-height:calc(100dvh - 24px)}
+.dlg-h{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--line)}
+.dlg-h h3{margin:0;font-family:var(--head);font-weight:600;font-size:1.15rem}
+.x{border:0;background:none;font-size:1.5rem;line-height:1;cursor:pointer;color:var(--muted);padding:4px 8px}
+.dlg-b{padding:18px 20px;overflow:auto}
+.dlg-f{padding:14px 20px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+@media (max-width:600px){dialog{width:100vw;max-width:100vw;max-height:100dvh;height:100dvh;border-radius:0;margin:0}.dlg{max-height:100dvh;height:100%;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}.dlg-b{flex:1}}
+label.f{display:block;margin-bottom:16px}
+label.f > span{display:block;font-weight:600;font-size:.92rem;margin-bottom:5px}
+label.f small{display:block;color:var(--muted);font-size:.82rem;margin-top:4px}
+input[type=text],textarea,select{width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
+textarea{resize:vertical;min-height:84px}
+.picker{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px;margin-bottom:8px}
+.picker .pi{position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;background:var(--sunk)}
+.picker .pi img{width:100%;height:100%;object-fit:cover}
+.picker .pi button{position:absolute;top:4px;right:4px;width:26px;height:26px;border-radius:50%;border:0;background:rgba(15,22,24,.75);color:#fff;cursor:pointer;font-size:1rem;line-height:1}
+.addph{aspect-ratio:1;border:1.5px dashed var(--line);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);font-size:.85rem;text-align:center;background:none;padding:6px}
+.addph b{font-size:1.6rem;font-weight:400;line-height:1}
+.err{color:var(--bad);font-size:.9rem;margin:6px 0 0}
+
+/* compare */
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.compare > div{min-width:0;padding:12px;background:var(--sunk)}
+.compare > div + div{border-left:3px solid var(--accent);background:var(--surface)}
+.compare h5{margin:0 0 8px;font-family:var(--head);font-size:.95rem;font-weight:600}
+.compare .imgs{display:flex;flex-direction:column;gap:8px}
+.compare img{width:100%;border-radius:6px;cursor:zoom-in;background:var(--bg)}
+@media (max-width:600px){.compare{grid-template-columns:1fr}.compare > div + div{border-left:0;border-top:3px solid var(--accent)}}
+.lb{background:#0c1113;width:100vw;max-width:100vw;height:100dvh;max-height:100dvh;margin:0;border-radius:0}
+.lb img{width:100%;height:100%;object-fit:contain}
+.lb .x{position:absolute;top:calc(env(safe-area-inset-top,0px) + 10px);right:14px;color:#fff;font-size:2rem;background:rgba(0,0,0,.4);border-radius:8px}
+
+.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 20px);transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:8px;opacity:0;pointer-events:none;transition:.2s;z-index:50;max-width:90vw}
+.toast.show{opacity:1;transform:translateX(-50%)}
+.skel{background:var(--sunk);border-radius:10px;aspect-ratio:4/3.6;animation:pulse 1.4s infinite ease-in-out}
+@keyframes pulse{50%{opacity:.55}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+.imgfail{display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.8rem;background:var(--sunk);width:100%;height:100%;min-height:60px}
+.pages{display:flex;flex-direction:column;gap:12px}
+.pages figure{margin:0;background:var(--surface);border-radius:8px;overflow:hidden;box-shadow:var(--shadow);cursor:zoom-in}
+.pages figcaption{font-size:.8rem;color:var(--muted);padding:6px 10px}
+.newtag{display:inline-block;background:var(--accent);color:var(--accent-ink);font-size:.72rem;font-weight:600;padding:0 8px;border-radius:99px;margin-left:6px;vertical-align:2px}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--accent);display:inline-block}
+.thread{display:flex;flex-direction:column;gap:10px;margin:8px 0 12px}
+.msg{max-width:85%;padding:8px 12px;border-radius:12px;background:var(--sunk);white-space:pre-wrap;word-break:break-word}
+.msg.me{align-self:flex-end;background:var(--accent-soft)}
+.msg .who{font-size:.78rem;color:var(--muted);display:flex;gap:6px;align-items:center;margin-bottom:2px;flex-wrap:wrap}
+.msg.st-rework{border-left:3px solid var(--bad)}
+.msg.st-approved{border-left:3px solid var(--ok)}
+.thread-empty{color:var(--muted);font-size:.9rem}
+.pdfbox{border:1.5px dashed var(--line);border-radius:10px;padding:12px;margin-bottom:8px}
+.pdfbox .picker{grid-template-columns:repeat(auto-fill,minmax(70px,1fr));margin:8px 0 0}
+.last{font-size:.88rem;color:var(--muted);margin-top:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.main-col{min-width:0}
+.me{display:inline-flex;align-items:center;gap:7px;color:var(--ink)}
+.me img{width:26px;height:26px;border-radius:50%}
+.login{max-width:440px;margin:48px auto;background:var(--surface);border-radius:14px;box-shadow:var(--shadow);padding:36px 28px;text-align:center}
+.login-mark{font-size:2.6rem;line-height:1;margin-bottom:10px}
+.login h2{font-family:var(--head);font-size:1.4rem;margin:0 0 8px}
+.login p{color:var(--muted);margin:0 0 20px}
+.demo-acc{margin-top:26px;padding-top:18px;border-top:1px solid var(--line);text-align:left}
+.acc-list{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.acc{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:7px 9px;cursor:pointer;text-align:left}
+.acc:hover{border-color:var(--accent)}
+.acc img{width:30px;height:30px;border-radius:50%;flex:none}
+.acc b{display:block;font-size:.9rem;line-height:1.3}
+.acc small{color:var(--muted);font-size:.75rem}
+.demo-acc summary{cursor:pointer;text-align:center;list-style:none}
+.demo-acc summary::-webkit-details-marker{display:none}
+.demo-acc[open] summary{margin-bottom:6px}
+.login input{font-size:1.15rem;padding:11px 14px;letter-spacing:.04em}
+.row.acct{grid-template-columns:auto 1fr auto}
+.row .av{width:44px;height:44px;border-radius:50%}
+.code{font-variant-numeric:tabular-nums;color:var(--ink)}
+.tbl-tools{display:flex;align-items:center;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+.search{width:100%;max-width:320px;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.tbl{background:var(--surface);border-radius:10px;box-shadow:var(--shadow);overflow:hidden}
+.tr{display:grid;grid-template-columns:minmax(0,2.2fr) 80px 90px minmax(0,1.6fr) auto;gap:12px;align-items:center;padding:9px 14px;border-top:1px solid var(--line)}
+.tr[hidden]{display:none}
+.row[hidden]{display:none}
+.list-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:6px 0 10px}
+.list-head h3{font-family:var(--head);font-weight:600;font-size:1.05rem;margin:0}
+.list-head .tbl-tools{margin:0;flex:1;justify-content:flex-end}
+.list-head .search{max-width:340px}
+.tr.th{border-top:0;background:var(--sunk);font-size:.8rem;color:var(--muted);font-weight:600;padding:7px 14px}
+.tr .nm{display:flex;align-items:center;gap:10px;min-width:0}
+.tr .nm img{width:30px;height:30px;border-radius:50%;flex:none}
+.tr .nm b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tr .acts{display:flex;gap:6px;justify-content:flex-end}
+@media (max-width:700px){
+  .tr.th{display:none}
+  .tr{grid-template-columns:1fr auto;grid-template-areas:'nm acts' 'meta meta';row-gap:4px}
+  .tr .nm{grid-area:nm}.tr .acts{grid-area:acts}
+  .tr > span:nth-child(2),.tr > span:nth-child(3),.tr > span:nth-child(4){display:inline-flex;grid-column:1/-1;font-size:.85rem}
+  .tr > span:nth-child(2){grid-row:2;padding-left:40px}
+  .tr > span:nth-child(3){grid-row:2;padding-left:90px}
+  .tr > span:nth-child(4){grid-row:3;padding-left:40px}
+}
+.badge.none{background:var(--sunk);color:var(--muted)}
+.badge.overdue{background:var(--bad);color:var(--surface)}
+.badge.late{background:var(--bad-bg);color:var(--bad)}
+.badge.resolved{background:var(--sunk);color:var(--muted)}
+.seg-overdue{background:var(--bad);opacity:.55}
+.due{font-size:.85rem;color:var(--muted);display:inline-block}
+.due.soon{color:var(--warn);font-weight:600}
+.due.late{color:var(--bad);font-weight:600}
+.btn.linkdel{border-color:transparent;color:var(--bad);margin-right:auto}
+input[type=date]{width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);max-width:240px}
+.checklist li.miss{color:var(--bad)}
+.checklist li.miss::before{border-color:var(--bad)}
+.miss-tag{margin-left:8px;font-size:.75rem;font-weight:600;background:var(--bad-bg);color:var(--bad);padding:1px 8px;border-radius:99px;white-space:nowrap}
+.ov{background:var(--surface);border-radius:12px;box-shadow:var(--shadow);padding:18px 20px;margin-bottom:18px}
+.ov-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.ov-head h3{font-family:var(--head);font-weight:600;font-size:1.25rem;margin:0}
+.ov-head h3 b{font-size:1.6rem;color:var(--accent)}
+.prog{display:flex;height:14px;border-radius:99px;overflow:hidden;background:var(--sunk)}
+.seg-approved{background:var(--ok)} .seg-pending{background:var(--warn)} .seg-rework{background:var(--bad)} .seg-none{background:var(--line)}
+.legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:12px;font-size:.9rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.legend b{color:var(--ink)}
+.ov-row .r-end{flex-direction:row;align-items:center;gap:12px}
+.ov-row .ph img{width:56px;height:56px}
+input:disabled{opacity:.6}
+.seg{display:flex;gap:4px;background:var(--sunk);padding:4px;border-radius:10px;overflow-x:auto;margin-bottom:18px;width:fit-content;max-width:100%}
+.seg button{border:0;background:none;padding:7px 14px;border-radius:7px;cursor:pointer;display:inline-flex;gap:7px;align-items:center;white-space:nowrap;color:var(--muted);font-weight:500}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+.seg .c{font-size:.78rem;background:var(--line);color:var(--ink);border-radius:99px;padding:0 7px;min-width:22px;text-align:center;line-height:1.6}
+.seg .c.hot{background:var(--warn-bg);color:var(--warn);font-weight:600}
+.seg .c.zero{opacity:.45}
+.checklist li.tick{cursor:pointer;user-select:none}
+.checklist li.done{color:var(--muted)}
+.checklist li.done::before{background:var(--accent)}
+.checklist li.done::after{content:"";position:absolute;left:9px;top:16px;width:5px;height:9px;border:solid var(--accent-ink);border-width:0 2px 2px 0;transform:rotate(45deg)}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <div class="brand">
+      <h1>Display Check</h1>
+      <div class="role" id="role"></div>
+    </div>
+    <nav class="tabs" id="tabs"></nav>
+  </div>
+</header>
+<main id="app"></main>
+<dialog id="dlg"></dialog>
+<dialog id="lb" class="lb"><button class="x" aria-label="ปิด" onclick="this.closest('dialog').close()">×</button><img alt=""></dialog>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+/* =====================================================================
+ *  ตั้งค่า: วาง URL ของ Apps Script Web App (ลงท้ายด้วย /exec) ตรงนี้
+ * ===================================================================== */
+const API_URL = 'PASTE_YOUR_WEB_APP_URL_HERE';
+const POLL_MS = 30000;          // ดึงข้อมูลใหม่ทุก 30 วินาที
+/* ===================================================================== */
+
+const MAX_PHOTOS = 8, MAX_PAGES = 40;
+const PDFJS = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+const PDFJS_WORKER = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+const ROLE_LABEL = {admin:'หัวหน้า', reviewer:'ผู้ช่วยตรวจ', ceo:'ผู้บริหาร · ดูอย่างเดียว', branch:'สาขา'};
+const STATUS = {pending:'รอตรวจ', approved:'ผ่าน', rework:'ให้แก้ไข', none:'ยังไม่ส่ง', overdue:'เลยกำหนด', resolved:'ส่งใหม่แล้ว'};
+const COLORS = ['#C2703D','#4C7A5A','#7A5AA6','#B0476A','#3F6FB5','#24566A','#8A6D1F','#2F7F86'];
+
+const S = {
+  token:null, me:null, templates:[], accounts:[], subs:[],
+  ready:false, error:'', busy:0, view:'templates', tid:null, filter:'pending',
+  staffTab:'branches', ovT:null, open:null, seen:{tpl:{},sub:{}}
+};
+
+/* ---------- small helpers ---------- */
+const $ = (s, el=document) => el.querySelector(s);
+function h(tag, props, ...kids){
+  const el=document.createElement(tag);
+  for (const [k,v] of Object.entries(props||{})){
+    if (v==null || v===false) continue;
+    if (k==='class') el.className=v;
+    else if (k==='text') el.textContent=v;
+    else if (k.startsWith('on') && typeof v==='function') el.addEventListener(k.slice(2), v);
+    else el.setAttribute(k, v===true ? '' : v);
+  }
+  for (const c of kids.flat()){ if (c==null || c===false) continue; el.append(c instanceof Node ? c : document.createTextNode(String(c))); }
+  return el;
+}
+const imgUrl = (id, w=1600) => 'https://drive.google.com/thumbnail?id='+encodeURIComponent(id)+'&sz=w'+w;
+function img(id, alt, extra){
+  const i=h('img', Object.assign({src:imgUrl(id), alt:alt||'', loading:'lazy', referrerpolicy:'no-referrer'}, extra||{}));
+  i.addEventListener('error', ()=>i.replaceWith(h('div',{class:'imgfail',text:'รูปโหลดไม่ได้'})), {once:true});
+  return i;
+}
+const fmt = t => t ? new Date(t).toLocaleString('th-TH',{dateStyle:'medium', timeStyle:'short'}) : '';
+const fmtDay = t => new Date(t).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'});
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),3000); }
+const badge = st => h('span',{class:'badge '+st, text:STATUS[st]});
+
+/* ---------- roles ---------- */
+const role = () => S.me ? S.me.role : null;
+const isAdmin = () => role()==='admin';
+const isReviewer = () => role()==='reviewer';
+const isCeo = () => role()==='ceo';
+const isBranch = () => role()==='branch';
+const mgrMode = () => isAdmin() || isReviewer();
+const seesAll = () => mgrMode() || isCeo();
+
+/* ---------- data helpers ---------- */
+const tplById = id => S.templates.find(t=>t.id===id);
+const accById = id => S.accounts.find(a=>a.id===id);
+const branches = () => S.accounts.filter(a=>a.role==='branch');
+const reviewers = () => S.accounts.filter(a=>a.role==='reviewer');
+const visuals = t => [...(t.images||[]), ...(t.pages||[])];
+function nameOf(id, fallback){
+  if (S.me && id===S.me.id) return 'คุณ';
+  if (id==='admin') return 'หัวหน้า';
+  if (id==='ceo') return 'ผู้บริหาร';
+  const a=accById(id); return a ? a.name : (fallback || 'ผู้ใช้');
+}
+function avatar(id, name){
+  name = name || nameOf(id);
+  let hh=0; for (const c of String(id)) hh=(hh*31+c.charCodeAt(0))|0;
+  const col=COLORS[Math.abs(hh)%COLORS.length];
+  const ch=(String(name).replace(/^(น้อง|คุณ|พี่|สาขา|เซ็นทรัล|เดอะ|The )\s*/,'').trim()[0]||'?').replace(/[<&"]/g,'');
+  return 'data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"><circle cx="20" cy="20" r="20" fill="'+col+'"/><text x="20" y="27" font-size="20" text-anchor="middle" fill="#fff" font-family="sans-serif">'+ch+'</text></svg>');
+}
+const person = (id, fallback) => h('span',{class:'person'}, h('img',{src:avatar(id, id===S.me?.id ? S.me.name : nameOf(id,fallback)),alt:''}), h('span',{text:nameOf(id,fallback)}));
+
+function statusOf(s){
+  if (!s.review) return 'pending';
+  if (s.review.status==='rework' && S.subs.some(x=>x.branchId===s.branchId && x.templateId===s.templateId && x.createdAt>s.createdAt)) return 'resolved';
+  return s.review.status;
+}
+const mySubs = () => S.subs.filter(s=>s.branchId===S.me.id).sort((a,b)=>lastAt(b)-lastAt(a));
+const allSubs = () => S.subs.slice().sort((a,b)=>lastAt(b)-lastAt(a));
+const lastAt = s => Math.max(s.createdAt||0, ...(s.comments||[]).map(c=>c.at||0));
+function othersAt(s){
+  let t = s.branchId!==S.me.id ? (s.createdAt||0) : 0;
+  for (const c of s.comments||[]) if (c.by!==S.me.id) t=Math.max(t,c.at||0);
+  return t;
+}
+const unread = s => othersAt(s) > (S.seen.sub[s.id]||0);
+function tplState(t){ const seen=S.seen.tpl[t.id]; if (!seen) return 'new'; if ((t.updatedAt||0)>seen) return 'updated'; return ''; }
+const isLate = (s,t) => !!(t && t.dueAt && s.createdAt > t.dueAt);
+function dueInfo(t, done){
+  if (!t || !t.dueAt) return null;
+  const left=Math.ceil((t.dueAt-Date.now())/86400000);
+  if (done) return {cls:'due', text:'กำหนดส่ง '+fmtDay(t.dueAt)};
+  if (Date.now()>t.dueAt) return {cls:'due late', text:'เลยกำหนด '+fmtDay(t.dueAt)};
+  if (left<=2) return {cls:'due soon', text: left<=0 ? 'ครบกำหนดวันนี้' : 'เหลือ '+left+' วัน · '+fmtDay(t.dueAt)};
+  return {cls:'due', text:'ส่งภายใน '+fmtDay(t.dueAt)};
+}
+const dueEl = (t,done) => { const d=dueInfo(t,done); return d ? h('span',{class:d.cls,text:d.text}) : null; };
+
+/* ---------- seen (เก็บในเครื่อง) ---------- */
+function loadSeen(){ try{ S.seen=JSON.parse(localStorage.getItem('dc-seen-'+S.me.id))||{tpl:{},sub:{}}; }catch(e){ S.seen={tpl:{},sub:{}}; } }
+function markSeen(kind,id){ S.seen[kind][id]=Date.now(); try{ localStorage.setItem('dc-seen-'+S.me.id, JSON.stringify(S.seen)); }catch(e){} }
+
+/* ---------- API ---------- */
+async function api(action, body){
+  let res;
+  try{
+    res = await fetch(API_URL, {method:'POST', body:JSON.stringify(Object.assign({action, token:S.token}, body||{}))});
+  }catch(e){ const er=new Error('เชื่อมต่อไม่ได้ ตรวจอินเทอร์เน็ตแล้วลองอีกครั้ง'); er.code='network'; throw er; }
+  let j; try{ j=await res.json(); }catch(e){ const er=new Error('ระบบหลังบ้านตอบกลับผิดรูปแบบ ตรวจ URL ของ Apps Script'); er.code='bad_response'; throw er; }
+  if (!j.ok){ const er=new Error(j.error||'เกิดข้อผิดพลาด'); er.code=j.code; if (j.code==='auth' && action!=='login'){ logout(); toast(er.message); } throw er; }
+  return j.data;
+}
+const errText = e => (e && e.message) || 'บันทึกไม่สำเร็จ ลองอีกครั้ง';
+
+function applySync(d){
+  S.me=d.me; S.templates=(d.templates||[]).sort((a,b)=>b.createdAt-a.createdAt);
+  S.accounts=d.accounts||[]; S.subs=d.submissions||[]; S.ready=true; S.error='';
+}
+let syncing=false;
+async function sync(){
+  if (!S.token || syncing) return;
+  syncing=true;
+  try{ applySync(await api('sync')); }
+  catch(e){ if (e.code!=='auth') S.error=e.message; }
+  finally{ syncing=false; }
+  render();
+}
+function upsertSub(s){ const i=S.subs.findIndex(x=>x.id===s.id); if (i===-1) S.subs.push(s); else S.subs[i]=s; }
+
+/* ---------- login ---------- */
+async function login(code){
+  const d=await api('login',{code});
+  S.token=d.token; S.me=d.me;
+  try{ sessionStorage.setItem('dc-token', d.token); }catch(e){}
+  loadSeen(); S.ready=false; S.filter='pending';
+  location.hash = isCeo() ? 'overview' : 'templates';
+  render(); await sync();
+}
+function logout(){
+  try{ sessionStorage.removeItem('dc-token'); }catch(e){}
+  S.token=null; S.me=null; S.ready=false; S.subs=[]; S.accounts=[]; S.templates=[]; S.open=null;
+  if ($('#dlg').open) $('#dlg').close();
+  try{ history.replaceState(null,'',location.pathname+location.search); }catch(e){}
+  render();
+}
+
+/* ---------- routing / chrome ---------- */
+function allowed(view){
+  if (view==='review') return mgrMode();
+  if (view==='staff') return isAdmin();
+  if (view==='overview') return seesAll();
+  if (view==='mine') return isBranch();
+  return true;
+}
+function route(){
+  const k=location.hash.slice(1);
+  if (k.startsWith('t-')){ S.view='template'; S.tid=k.slice(2); }
+  else if (['templates','mine','review','staff','overview'].includes(k)) S.view=k;
+  else S.view = isCeo() ? 'overview' : 'templates';
+  if (!allowed(S.view)) S.view = isCeo() ? 'overview' : 'templates';
+  render(); window.scrollTo(0,0);
+}
+window.addEventListener('hashchange', route);
+
+function renderChrome(){
+  const role_=$('#role'), tabs=$('#tabs');
+  role_.replaceChildren(); tabs.replaceChildren();
+  if (!S.me) return;
+  role_.append(h('span',{class:'me'}, h('img',{src:avatar(S.me.id,S.me.name),alt:''}), h('span',{}, h('b',{text:S.me.name}), ' · '+ROLE_LABEL[role()])),
+    h('button',{class:'btn small',onclick:logout,text:'ออกจากระบบ'}));
+  const cur = S.view==='template' ? 'templates' : S.view;
+  const tab=(key,label,extra)=>h('a',{class:'tab',href:'#'+key,'aria-current':cur===key?'page':null},label,extra||null);
+  if (isCeo()) tabs.append(tab('overview','ภาพรวมสาขา'));
+  const nNew = S.ready && isBranch() ? S.templates.filter(t=>tplState(t)).length : 0;
+  tabs.append(tab('templates','คู่มือ', nNew ? h('span',{class:'count',text:nNew+' ใหม่'}) : null));
+  if (isBranch()){
+    const n=mySubs().filter(unread).length;
+    tabs.append(tab('mine','งานของสาขา', n ? h('span',{class:'count',text:n+' ข้อความใหม่'}) : null));
+  }
+  if (mgrMode()){
+    const all=allSubs(); const p=all.filter(s=>statusOf(s)==='pending').length; const un=all.some(unread);
+    tabs.append(tab('review','ตรวจงาน', p ? h('span',{class:'count',text:p+' รอตรวจ'}) : null, un ? h('span',{class:'dot',title:'มีข้อความใหม่'}) : null));
+    tabs.append(tab('overview','ภาพรวมสาขา'));
+  }
+  if (isAdmin()) tabs.append(tab('staff','สาขาและทีม'));
+}
+
+function render(){
+  renderChrome();
+  const main=$('#app'); main.replaceChildren();
+  if (!API_URL || API_URL.includes('PASTE_')){ main.append(setupView()); return; }
+  if (!S.token){ main.append(loginView()); return; }
+  if (S.error) main.append(h('div',{class:'banner',text:S.error}));
+  if (!S.ready){ main.append(h('div',{class:'grid'}, [1,2,3].map(()=>h('div',{class:'skel'})))); return; }
+  const v={overview:viewOverview, templates:viewTemplates, template:viewTemplate, mine:viewMine, review:viewReview, staff:viewStaff}[S.view] || viewTemplates;
+  v(main);
+  if (S.open) refreshOpen();
+}
+
+function setupView(){
+  return h('div',{class:'login'}, h('div',{class:'login-mark',text:'🛠️'}), h('h2',{text:'ยังไม่ได้ตั้งค่า'}),
+    h('p',{text:'เปิดไฟล์ index.html แล้ววาง URL ของ Apps Script Web App ในบรรทัด API_URL ด้านบนสุดของสคริปต์ (ดูขั้นตอนใน README.md)'}));
+}
+function loginView(){
+  const code=h('input',{type:'text',autocomplete:'username',autocapitalize:'characters',style:'text-transform:uppercase',placeholder:'เช่น CTW','aria-label':'รหัสเข้าสู่ระบบ'});
+  const err=h('p',{class:'err',role:'alert'});
+  const btn=h('button',{class:'btn primary',style:'width:100%;justify-content:center;margin-top:4px',text:'เข้าสู่ระบบ'});
+  const go=async()=>{
+    err.textContent='';
+    if (!code.value.trim()){ err.textContent='ใส่รหัสก่อน'; code.focus(); return; }
+    btn.disabled=true; btn.textContent='กำลังเข้าสู่ระบบ…';
+    try{ await login(code.value); }
+    catch(e){ err.textContent = e.code==='auth' ? 'ไม่พบรหัสนี้ ตรวจรหัสอีกครั้ง หรือขอให้หัวหน้าเพิ่มให้' : errText(e); btn.disabled=false; btn.textContent='เข้าสู่ระบบ'; }
+  };
+  btn.onclick=go; code.addEventListener('keydown',e=>{ if(e.key==='Enter') go(); });
+  setTimeout(()=>code.focus(),0);
+  return h('div',{class:'login'}, h('div',{class:'login-mark',text:'🛋️'}), h('h2',{text:'Display Check'}),
+    h('p',{text:'ใส่รหัสสาขาที่ได้รับจากหัวหน้าเพื่อเข้าสู่ระบบ'}),
+    h('label',{class:'f',style:'text-align:left'}, h('span',{text:'รหัส'}), code), err, btn);
+}
+
+/* ---------- search box ---------- */
+function searchBox(rowEls, placeholder, key){
+  const q=h('input',{type:'search',class:'search',placeholder,'aria-label':placeholder,value:S[key]||''});
+  const cnt=h('span',{class:'meta'});
+  const empty=h('p',{class:'meta',style:'padding:16px;text-align:center',hidden:true,text:'ไม่พบสาขาที่ค้นหา'});
+  const apply=()=>{ const v=q.value.trim().toLowerCase(); S[key]=q.value; let n=0; rowEls.forEach(r=>{ const ok=!v||(r.dataset.q||'').includes(v); r.hidden=!ok; if(ok) n++; }); empty.hidden=n>0; cnt.textContent = v ? 'พบ '+n+' จาก '+rowEls.length : ''; };
+  q.addEventListener('input',apply);
+  return {tools:h('div',{class:'tbl-tools'}, q, cnt), empty, apply};
+}
+
+/* ---------- views: guidelines ---------- */
+function viewTemplates(main){
+  const bar=h('div',{class:'bar'}, h('div',{}, h('h2',{text:'คู่มือและแบบตัวอย่าง'}),
+    h('p',{class:'hint',text: isAdmin() ? 'แนบคู่มือ PDF หรือรูปแบบที่จัดถูกต้อง ทุกสาขาจะเห็นทันที' : 'เปิดคู่มือ ดูรูปและจุดที่ต้องเช็ก แล้วจัดให้ตรงตามแบบ'})));
+  if (isAdmin()) bar.append(h('button',{class:'btn primary',onclick:()=>openTemplateForm(null),text:'+ ส่งคู่มือใหม่'}));
+  main.append(bar);
+  if (!S.templates.length){
+    main.append(h('div',{class:'empty'}, h('strong',{text:'ยังไม่มีคู่มือ'}),
+      isAdmin() ? 'แนบไฟล์ PDF คู่มือ หรือถ่ายรูปที่จัดถูกต้องแล้วเพิ่มเป็นคู่มือแรก' : 'เมื่อหัวหน้าส่งคู่มือ จะขึ้นที่หน้านี้'));
+    return;
+  }
+  const g=h('div',{class:'grid'});
+  for (const t of S.templates){
+    const v=visuals(t); const st=isBranch() && tplState(t);
+    const mine=isBranch() && mySubs().find(s=>s.templateId===t.id);
+    const pend=mgrMode() ? S.subs.filter(s=>s.templateId===t.id && statusOf(s)==='pending').length : 0;
+    g.append(h('a',{class:'card',href:'#t-'+t.id},
+      h('div',{class:'cover'}, v[0] ? img(v[0], t.title) : h('div',{class:'imgfail',text:'ไม่มีรูป'}),
+        v.length>1 ? h('span',{class:'n',text:(t.pages||[]).length ? 'PDF '+t.pages.length+' หน้า' : v.length+' รูป'}) : null),
+      h('div',{class:'card-b'}, h('h3',{}, t.title, st ? h('span',{class:'newtag',text: st==='new'?'ใหม่':'อัปเดต'}) : null),
+        h('span',{class:'meta',text:'ส่งเมื่อ '+fmt(t.updatedAt||t.createdAt)}),
+        dueEl(t, seesAll() || !!mine),
+        mine ? badge(statusOf(mine)) : null,
+        pend ? h('span',{class:'badge pending',text:pend+' งานรอตรวจ'}) : null)));
+  }
+  main.append(g);
+}
+
+function viewTemplate(main){
+  const t=tplById(S.tid);
+  main.append(h('a',{class:'back',href:'#templates',text:'‹ คู่มือทั้งหมด'}));
+  if (!t){ main.append(h('div',{class:'empty'}, h('strong',{text:'ไม่พบคู่มือนี้'}), 'คู่มือนี้อาจถูกลบไปแล้ว')); return; }
+  if (isBranch() && tplState(t)) markSeen('tpl', t.id);
+  const col=h('div',{class:'main-col'});
+  if ((t.images||[]).length) col.append(h('div',{class:'section-t',style:'margin-top:0',text:'รูปแบบตัวอย่าง'}), h('div',{class:'pages'}, t.images.map((id,i)=>h('figure',{onclick:()=>lightbox(id)}, img(id,'รูปแบบที่ '+(i+1))))));
+  if ((t.pages||[]).length) col.append(h('div',{class:'section-t',style:(t.images||[]).length?'':'margin-top:0',text:'คู่มือ PDF · '+t.pages.length+' หน้า'}),
+    h('div',{class:'pages'}, t.pages.map((id,i)=>h('figure',{onclick:()=>lightbox(id)}, img(id,'หน้า '+(i+1)), h('figcaption',{text:'หน้า '+(i+1)+' แตะเพื่อขยาย'})))));
+  const done = seesAll() || mySubs().some(x=>x.templateId===t.id);
+  const side=h('div',{class:'side',style:'position:sticky;top:130px'}, h('h2',{text:t.title}),
+    h('p',{class:'meta',style:'margin:-4px 0 12px',text:'ส่งเมื่อ '+fmt(t.updatedAt||t.createdAt)}), dueEl(t,done));
+  if (t.notes) side.append(h('p',{class:'notes',text:t.notes}));
+  const acts=h('div',{class:'actions',style:'margin-top:14px'});
+  if (isAdmin()) acts.append(h('button',{class:'btn',onclick:()=>openTemplateForm(t),text:'แก้ไขคู่มือ'}), h('button',{class:'btn bad',onclick:()=>deleteTemplate(t),text:'ลบคู่มือ'}));
+  if (isBranch()) acts.append(h('button',{class:'btn primary',onclick:()=>openSubmitForm(t.id),text:'ส่งรูปที่จัดเสร็จ'}));
+  side.append(acts);
+  const rel=(seesAll() ? allSubs() : mySubs()).filter(s=>s.templateId===t.id);
+  if (rel.length) side.append(h('div',{class:'section-t',text: seesAll() ? 'งานที่ส่งมาสำหรับคู่มือนี้' : 'งานที่สาขาส่งสำหรับคู่มือนี้'}), h('div',{class:'rows'}, rel.slice(0,8).map(subRow)));
+  const wrap=h('div',{class:'detail'}, col, side);
+  if (window.matchMedia('(max-width:820px)').matches){ side.style.position='static'; wrap.replaceChildren(side, col); }
+  main.append(wrap);
+}
+
+function subRow(s){
+  const t=tplById(s.templateId); const cs=s.comments||[]; const last=cs[cs.length-1]; const st=statusOf(s);
+  const body=h('div',{}, h('h4',{}, (t?t.title:'คู่มือที่ถูกลบ') + (s.place ? ' · '+s.place : '')),
+    h('div',{class:'meta'}, seesAll() ? [person(s.branchId), ' · '] : null, fmt(s.createdAt), cs.length ? ' · '+cs.length+' ข้อความ' : ''),
+    last ? h('div',{class:'last'}, nameOf(last.by,last.byName)+': '+last.text) : null);
+  const end=h('div',{class:'r-end'}, h('div',{class:'actions'}, isLate(s,t) ? h('span',{class:'badge late',text:'ส่งช้า'}) : null, badge(st)), unread(s) ? h('span',{class:'newtag',text:'ใหม่'}) : null);
+  const el=h('button',{class:'row',onclick:()=>openSub(s.id)}, h('div',{class:'ph'}, (s.images||[]).slice(0,3).map(id=>img(id,''))), body, end);
+  const acc=accById(s.branchId);
+  el.dataset.q=((acc?acc.name:'')+' '+(acc&&acc.code?acc.code:'')+' '+(s.place||'')).toLowerCase();
+  return el;
+}
+
+function viewMine(main){
+  main.append(h('div',{class:'bar'}, h('div',{}, h('h2',{text:'งานของสาขา'}), h('p',{class:'hint',text:'กดที่งานเพื่อดูผลตรวจ คุยกับหัวหน้า หรือส่งงานใหม่'})),
+    S.templates.length ? h('button',{class:'btn primary',onclick:()=>openSubmitForm(null),text:'+ ส่งงานใหม่'}) : null));
+  const list=mySubs();
+  if (!list.length){ main.append(h('div',{class:'empty'}, h('strong',{text:'ยังไม่ได้ส่งงาน'}), 'เปิดคู่มือที่ต้องจัด จัดให้ตรงตามแบบ แล้วกดส่งรูปที่จัดเสร็จ', h('div',{}, h('a',{class:'btn primary',href:'#templates',text:'ไปที่คู่มือ'})))); return; }
+  main.append(h('div',{class:'rows'}, list.map(subRow)));
+}
+
+function viewReview(main){
+  const all=allSubs();
+  const counts={pending:0,rework:0,approved:0,resolved:0}; all.forEach(s=>counts[statusOf(s)]++);
+  const seg=(k,l,n)=>{ const dot=all.some(s=>(k==='all'||statusOf(s)===k) && unread(s));
+    return h('button',{'aria-pressed':String(S.filter===k),onclick(){S.filter=k;render();}}, l, h('span',{class:'c'+(n===0?' zero':'')+(k==='pending'&&n?' hot':''),text:String(n)}), dot ? h('span',{class:'dot'}) : null); };
+  main.append(h('div',{class:'bar',style:'margin-bottom:12px'}, h('div',{}, h('h2',{text:'ตรวจงาน'}), h('p',{class:'hint',text:'กดที่งานเพื่อเทียบรูปกับคู่มือ แล้วกดผ่านหรือให้แก้ไข จุดสีฟ้าคือมีข้อความใหม่'}))));
+  main.append(h('div',{class:'seg',role:'group'}, seg('pending','รอตรวจ',counts.pending), seg('rework','ส่งกลับให้แก้',counts.rework), seg('approved','ผ่านแล้ว',counts.approved), seg('all','ทั้งหมด',all.length)));
+  const list = S.filter==='all' ? all : all.filter(s=>statusOf(s)===S.filter);
+  if (!list.length){ main.append(h('div',{class:'empty'}, h('strong',{text: S.filter==='pending' ? 'ตรวจครบแล้ว ไม่มีงานรอตรวจ' : 'ยังไม่มีงานในหมวดนี้'}), S.filter==='pending' ? 'งานใหม่ที่สาขาส่งจะขึ้นที่นี่' : '')); return; }
+  const els=list.map(subRow);
+  const sb=searchBox(els,'ค้นหาชื่อสาขาหรือรหัส','reviewQ');
+  main.append(sb.tools, h('div',{class:'rows'}, els), sb.empty); sb.apply();
+}
+
+/* ---------- overview ---------- */
+function viewOverview(main){
+  const tpls=S.templates;
+  main.append(h('div',{class:'bar'}, h('div',{}, h('h2',{text:'ภาพรวมสาขา'}), h('p',{class:'hint',text:'ดูว่าแต่ละสาขาส่งงานตามคู่มือแล้วหรือยัง'}))));
+  if (!tpls.length){ main.append(h('div',{class:'empty'}, h('strong',{text:'ยังไม่มีคู่มือ'}), 'เมื่อหัวหน้าส่งคู่มือ ภาพรวมของแต่ละสาขาจะขึ้นที่นี่')); return; }
+  if (!S.ovT || !tplById(S.ovT)) S.ovT=tpls[0].id;
+  const t=tplById(S.ovT);
+  if (tpls.length>1){
+    const sel=h('select',{style:'max-width:420px'}, tpls.map(x=>h('option',{value:x.id,selected:x.id===t.id?true:null,text:x.title})));
+    sel.onchange=()=>{ S.ovT=sel.value; render(); };
+    main.append(h('label',{class:'f'}, h('span',{text:'คู่มือ'}), sel));
+  }
+  const past = t.dueAt && Date.now()>t.dueAt;
+  const ORDER={overdue:0,none:1,rework:2,pending:3,resolved:3,approved:4};
+  const rows=branches().map(a=>{
+    const subs=S.subs.filter(s=>s.branchId===a.id && s.templateId===t.id).sort((x,y)=>y.createdAt-x.createdAt);
+    const last=subs[0], first=subs[subs.length-1];
+    return {a,last,count:subs.length,late:!!(first&&isLate(first,t)),st:last?statusOf(last):(past?'overdue':'none')};
+  }).sort((x,y)=>ORDER[x.st]-ORDER[y.st] || x.a.name.localeCompare(y.a.name,'th'));
+  const n=rows.length;
+  if (!n){ main.append(h('div',{class:'empty'}, h('strong',{text:'ยังไม่มีสาขาในระบบ'}), 'เมื่อหัวหน้าเพิ่มสาขา รายชื่อจะขึ้นที่นี่')); return; }
+  const c={overdue:0,none:0,rework:0,pending:0,approved:0,resolved:0}; rows.forEach(r=>c[r.st]++);
+  const nLate=rows.filter(r=>r.late).length;
+  const seg=k=>c[k] ? h('span',{class:'seg-'+k,style:'width:'+(c[k]/n*100)+'%',title:STATUS[k]+' '+c[k]}) : null;
+  main.append(h('section',{class:'ov'},
+    h('div',{class:'ov-head'}, h('h3',{}, 'ส่งแล้ว ', h('b',{text:String(n-c.none-c.overdue)}), ' จาก '+n+' สาขา'),
+      h('span',{class:'meta'}, t.title, t.dueAt ? ' · กำหนดส่ง '+fmtDay(t.dueAt) : '', nLate ? ' · ส่งช้า '+nLate+' สาขา' : '')),
+    h('div',{class:'prog',role:'img','aria-label':'ผ่าน '+c.approved+' รอตรวจ '+c.pending+' ให้แก้ไข '+c.rework+' ยังไม่ส่ง '+c.none+' เลยกำหนด '+c.overdue}, seg('approved'), seg('pending'), seg('rework'), seg('none'), seg('overdue')),
+    h('div',{class:'legend'}, ['approved','pending','rework','none','overdue'].filter(k=>k!=='overdue'||t.dueAt).map(k=>h('span',{}, h('i',{class:'seg-'+k}), STATUS[k]+' ', h('b',{text:String(c[k])}))))));
+  const list=h('div',{class:'rows'});
+  for (const r of rows){
+    const inner=[h('img',{class:'av',src:avatar(r.a.id,r.a.name),alt:''}),
+      h('div',{}, h('h4',{text:r.a.name}), h('div',{class:'meta',text: r.last ? 'ส่งล่าสุด '+fmt(r.last.createdAt)+(r.last.place?' · '+r.last.place:'')+(r.count>1?' · ส่ง '+r.count+' ครั้ง':'') : 'ยังไม่มีงานสำหรับคู่มือนี้'})),
+      h('div',{class:'r-end'}, r.last && r.last.images && r.last.images[0] ? h('div',{class:'ph'}, img(r.last.images[0],'')) : null, r.late ? h('span',{class:'badge late',text:'ส่งช้า'}) : null, badge(r.st))];
+    const el = r.last ? h('button',{class:'row acct ov-row',onclick:()=>openSub(r.last.id)}, ...inner) : h('div',{class:'row acct ov-row'}, ...inner);
+    el.dataset.q=(r.a.name+' '+(r.a.code||'')).toLowerCase(); list.append(el);
+  }
+  const sb=searchBox([...list.children],'ค้นหาชื่อสาขาหรือรหัส','ovQ');
+  main.append(h('div',{class:'list-head'}, h('h3',{text:'รายชื่อสาขา'}), sb.tools), list, sb.empty); sb.apply();
+}
+
+/* ---------- branches & team (admin) ---------- */
+function viewStaff(main){
+  const isTeam=S.staffTab==='team';
+  const B=branches().sort((x,y)=>String(x.code).localeCompare(String(y.code),undefined,{numeric:true}));
+  const R=reviewers().sort((x,y)=>x.name.localeCompare(y.name,'th'));
+  main.append(h('div',{class:'bar',style:'margin-bottom:12px'}, h('div',{}, h('h2',{text:'สาขาและทีม'}),
+      h('p',{class:'hint',text: isTeam ? 'คนในทีมที่ช่วยตรวจงาน ตรวจ ผ่าน ให้แก้ไข และตอบข้อความได้ แต่ส่งคู่มือหรือจัดการสาขาไม่ได้' : 'เพิ่มสาขา แล้วแจ้งรหัสสาขาให้พนักงานที่สาขานั้นใช้เข้าสู่ระบบ'})),
+    h('button',{class:'btn primary',onclick:()=>openAccountForm(null, isTeam?'reviewer':'branch'),text: isTeam ? '+ เพิ่มผู้ช่วยตรวจ' : '+ เพิ่มสาขา'})));
+  const segBtn=(k,l,n)=>h('button',{'aria-pressed':String(S.staffTab===k),onclick(){ S.staffTab=k; S.staffQ=''; render(); }}, l, h('span',{class:'c',text:String(n)}));
+  main.append(h('div',{class:'seg',role:'group'}, segBtn('branches','สาขา',B.length), segBtn('team','ทีมตรวจงาน',R.length)));
+  const list=isTeam ? R : B;
+  if (!list.length){ main.append(h('div',{class:'empty'}, h('strong',{text: isTeam ? 'ยังไม่มีผู้ช่วยตรวจ' : 'ยังไม่มีสาขา'}), isTeam ? 'เพิ่มคนในทีมเพื่อแบ่งงานตรวจ' : 'เพิ่มสาขาแรก แล้วส่งรหัสสาขาให้พนักงานที่สาขานั้น')); return; }
+  const table=h('div',{class:'tbl',role:'table'});
+  table.append(h('div',{class:'tr th',role:'row'}, h('span',{text:isTeam?'ชื่อ':'สาขา'}), h('span',{text:'รหัส'}), h('span',{text:isTeam?'ตรวจแล้ว':'ส่งงาน'}), h('span',{text:isTeam?'':'สถานะงาน'}), h('span',{})));
+  const rowEls=[];
+  for (const a of list){
+    let c3, c4=null;
+    if (isTeam){ c3=S.subs.filter(s=>s.review && s.review.by===a.id).length+' งาน'; }
+    else {
+      const subs=S.subs.filter(s=>s.branchId===a.id);
+      const pend=subs.filter(s=>statusOf(s)==='pending').length, re=subs.filter(s=>statusOf(s)==='rework').length;
+      c3=subs.length+' ครั้ง';
+      c4=h('span',{class:'actions'}, pend ? h('span',{class:'badge pending',text:pend+' รอตรวจ'}) : null, re ? h('span',{class:'badge rework',text:re+' ให้แก้'}) : null, !subs.length ? h('span',{class:'meta',text:'ยังไม่ส่ง'}) : null);
+    }
+    const r=h('div',{class:'tr',role:'row'},
+      h('span',{class:'nm'}, h('img',{src:avatar(a.id,a.name),alt:''}), h('b',{text:a.name})),
+      h('span',{class:'code',text:String(a.code||'').toUpperCase()}),
+      h('span',{class:'meta',text:c3}), h('span',{}, c4),
+      h('span',{class:'acts'}, h('button',{class:'btn small',onclick:()=>openAccountForm(a),text:'แก้ไข'}), h('button',{class:'btn small bad',onclick:()=>deleteAccount(a),text:'ลบ'})));
+    r.dataset.q=(a.name+' '+(a.code||'')).toLowerCase();
+    rowEls.push(r); table.append(r);
+  }
+  const sb=searchBox(rowEls, isTeam?'ค้นหาชื่อหรือรหัส':'ค้นหาชื่อสาขาหรือรหัส','staffQ');
+  main.append(sb.tools, table, sb.empty); sb.apply();
+}
+
+function openAccountForm(a, roleArg){
+  const isRev = a ? a.role==='reviewer' : roleArg==='reviewer';
+  const noun = isRev ? 'ผู้ช่วยตรวจ' : 'สาขา';
+  const name=h('input',{type:'text',value:a?a.name:'',placeholder:isRev?'เช่น คุณนิด':'เช่น เซ็นทรัลเวิลด์'});
+  const code=h('input',{type:'text',value:a?String(a.code||'').toUpperCase():'',autocapitalize:'characters',style:'text-transform:uppercase',disabled:a?true:null,placeholder:isRev?'เช่น NID':'เช่น CTW'});
+  const err=h('p',{class:'err'});
+  const save=h('button',{class:'btn primary',text:a?'บันทึก':'เพิ่ม'+noun});
+  save.onclick=async()=>{
+    err.textContent='';
+    if (!name.value.trim()){ err.textContent='ใส่ชื่อ'+noun; name.focus(); return; }
+    if (!a && !/^[a-z0-9-]{2,30}$/i.test(code.value.trim())){ err.textContent='รหัสใช้ได้เฉพาะ A-Z 0-9 และขีด ยาว 2–30 ตัว'; code.focus(); return; }
+    save.disabled=true; save.textContent='กำลังบันทึก…';
+    try{
+      const doc=await api('saveAccount',{account:{id:a?a.id:null, name:name.value.trim(), code:code.value.trim(), role:isRev?'reviewer':'branch'}});
+      $('#dlg').close(); toast(a?'บันทึกแล้ว':'เพิ่ม '+doc.name+' แล้ว รหัสเข้าสู่ระบบคือ '+doc.code.toUpperCase());
+      await sync();
+    }catch(e){ err.textContent=errText(e); save.disabled=false; save.textContent=a?'บันทึก':'เพิ่ม'+noun; }
+  };
+  openDialog((a?'แก้ไข':'เพิ่ม')+noun, h('div',{},
+    h('label',{class:'f'}, h('span',{text:isRev?'ชื่อ':'ชื่อสาขา'}), name),
+    h('label',{class:'f'}, h('span',{text:isRev?'รหัสเข้าสู่ระบบ':'รหัสสาขา'}), code, h('small',{text: a ? 'เปลี่ยนรหัสไม่ได้ ถ้าต้องการรหัสใหม่ ให้ลบแล้วเพิ่มใหม่' : 'ใช้รหัสนี้เข้าสู่ระบบ ตั้งให้เดายากหน่อยจะปลอดภัยกว่า เช่น CTW-58'})), err),
+    [h('button',{class:'btn',onclick:()=>$('#dlg').close(),text:'ยกเลิก'}), save]);
+  setTimeout(()=>name.focus(),0);
+}
+async function deleteAccount(a){
+  if (!confirm((a.role==='reviewer'?'ลบผู้ช่วยตรวจ ':'ลบสาขา ')+a.name+'? รหัสนี้จะเข้าสู่ระบบไม่ได้อีก แต่งานที่เคยส่งยังอยู่')) return;
+  try{ await api('deleteAccount',{id:a.id}); toast('ลบแล้ว'); await sync(); }catch(e){ toast(errText(e)); }
+}
+
+/* ---------- dialogs ---------- */
+function openDialog(title, body, foot, wide){
+  const d=$('#dlg'); d.className=wide?'wide':'';
+  d.replaceChildren(h('div',{class:'dlg'}, h('div',{class:'dlg-h'}, h('h3',{text:title}), h('button',{class:'x','aria-label':'ปิด',onclick:()=>d.close(),text:'×'})),
+    h('div',{class:'dlg-b'}, body), foot ? h('div',{class:'dlg-f'}, foot) : null));
+  if (!d.open) d.showModal();
+  return d;
+}
+$('#dlg').addEventListener('close',()=>{ S.open=null; });
+function lightbox(id){ const d=$('#lb'); $('img',d).src=imgUrl(id,2400); d.showModal(); }
+$('#lb').addEventListener('click',e=>{ if (e.target===e.currentTarget) e.currentTarget.close(); });
+
+function photoPicker(items){
+  const wrap=h('div',{class:'picker'});
+  const input=h('input',{type:'file',accept:'image/*',multiple:true,hidden:true});
+  input.addEventListener('change',()=>{ for (const f of input.files){ if (items.length>=MAX_PHOTOS){ toast('ใส่ได้สูงสุด '+MAX_PHOTOS+' รูป'); break; } items.push({file:f,url:URL.createObjectURL(f)}); } input.value=''; draw(); });
+  function draw(){
+    wrap.replaceChildren(...items.map((it,i)=>h('div',{class:'pi'}, it.id ? img(it.id,'') : h('img',{src:it.url,alt:''}),
+      h('button',{'aria-label':'เอารูปนี้ออก',onclick(){ items.splice(i,1); draw(); },text:'×'}))));
+    if (items.length<MAX_PHOTOS) wrap.append(h('button',{class:'addph',type:'button',onclick:()=>input.click()}, h('b',{text:'+'}), 'ถ่ายหรือเลือกรูป'));
+    wrap.append(input);
+  }
+  draw(); return wrap;
+}
+async function prepImage(file){
+  try{
+    const bmp=await createImageBitmap(file);
+    const sc=Math.min(1,1600/Math.max(bmp.width,bmp.height));
+    const c=document.createElement('canvas'); c.width=Math.round(bmp.width*sc); c.height=Math.round(bmp.height*sc);
+    c.getContext('2d').drawImage(bmp,0,0,c.width,c.height); bmp.close&&bmp.close();
+    const b=await new Promise(r=>c.toBlob(r,'image/jpeg',.85)); if (b) return b;
+  }catch(e){}
+  if (/^image\/(jpeg|png|webp)$/.test(file.type)) return file;
+  throw new Error('ไฟล์นี้ไม่ใช่รูปที่รองรับ ลองใช้ JPG หรือ PNG');
+}
+const toB64 = b => new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(String(r.result).split(',')[1]); r.onerror=()=>rej(new Error('อ่านไฟล์ไม่ได้')); r.readAsDataURL(b); });
+async function uploadItems(items, onStep){
+  const ids=[]; let n=0; const total=items.filter(i=>!i.id).length;
+  for (const it of items){
+    if (it.id){ ids.push(it.id); continue; }
+    onStep(++n,total);
+    const b = it.ready ? it.file : await prepImage(it.file);
+    const r = await api('upload',{data:await toB64(b), mime:b.type||'image/jpeg'});
+    it.id=r.id; ids.push(r.id);
+  }
+  return ids;
+}
+
+/* PDF → รูปทีละหน้า (ทำในเบราว์เซอร์) */
+let pdfjsP=null;
+function loadPdfJs(){
+  if (!pdfjsP) pdfjsP=new Promise((res,rej)=>{
+    const s=document.createElement('script'); s.src=PDFJS;
+    s.onload=()=>{ window.pdfjsLib.GlobalWorkerOptions.workerSrc=PDFJS_WORKER; res(window.pdfjsLib); };
+    s.onerror=()=>{ pdfjsP=null; rej(new Error('โหลดตัวอ่าน PDF ไม่ได้ ตรวจอินเทอร์เน็ตแล้วลองใหม่')); };
+    document.head.append(s);
+  });
+  return pdfjsP;
+}
+async function pdfToPages(file, onStep){
+  const L=await loadPdfJs();
+  let doc; try{ doc=await L.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise; }catch(e){ throw new Error('เปิด PDF นี้ไม่ได้ ไฟล์อาจเสียหรือมีรหัสผ่าน'); }
+  const n=Math.min(doc.numPages,MAX_PAGES); const out=[];
+  for (let i=1;i<=n;i++){
+    onStep(i,n);
+    const p=await doc.getPage(i); const v1=p.getViewport({scale:1});
+    const v=p.getViewport({scale:Math.min(3,2000/Math.max(v1.width,v1.height))});
+    const c=document.createElement('canvas'); c.width=Math.floor(v.width); c.height=Math.floor(v.height);
+    const ctx=c.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,c.width,c.height);
+    await p.render({canvasContext:ctx, viewport:v}).promise;
+    const b=await new Promise(r=>c.toBlob(r,'image/jpeg',.82));
+    out.push({file:b, url:URL.createObjectURL(b), ready:true}); p.cleanup();
+  }
+  const total=doc.numPages; doc.destroy();
+  return {pages:out, total};
+}
+
+function openTemplateForm(t){
+  const items=(t?t.images||[]:[]).map(id=>({id}));
+  let pages=(t?t.pages||[]:[]).map(id=>({id}));
+  const title=h('input',{type:'text',value:t?t.title:'',placeholder:'เช่น TENCEL Bedding Set สำหรับห้าง'});
+  const toDateStr=ms=>{ const d=new Date(ms); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
+  const due=h('input',{type:'date',value:t&&t.dueAt?toDateStr(t.dueAt):''});
+  const notes=h('textarea',{placeholder:'อธิบายสั้น ๆ ว่าต้องจัดอย่างไร'}); notes.value=t?t.notes||'':'';
+  const check=h('textarea',{placeholder:'เลือกขนาดผ้าให้ตรงกับที่นอนที่โชว์\nปลอกหมอน 4 ใบ\nรีดผ้าให้เรียบทุกครั้ง'}); check.value=t?(t.checklist||[]).join('\n'):'';
+  const err=h('p',{class:'err'});
+  const save=h('button',{class:'btn primary',text:t?'บันทึกการแก้ไข':'ส่งคู่มือให้ทุกสาขา'});
+  const pdfIn=h('input',{type:'file',accept:'application/pdf,.pdf',hidden:true});
+  const pdfBox=h('div',{class:'pdfbox'});
+  const drawPdf=status=>{
+    pdfBox.replaceChildren(h('div',{style:'display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap'},
+      h('span',{style:'font-weight:600;font-size:.92rem',text: pages.length ? 'คู่มือ PDF · '+pages.length+' หน้า' : 'คู่มือ PDF'}),
+      h('span',{class:'actions'}, h('button',{class:'btn small',type:'button',onclick:()=>pdfIn.click(),text: pages.length ? 'เปลี่ยนไฟล์ PDF' : 'แนบไฟล์ PDF'}),
+        pages.length ? h('button',{class:'btn small bad',type:'button',onclick(){ pages=[]; drawPdf(); },text:'เอาออก'}) : null)),
+      status ? h('p',{class:'meta',style:'margin:6px 0 0',text:status}) : null,
+      pages.length ? h('div',{class:'picker'}, pages.map(p=>h('div',{class:'pi'}, p.id?img(p.id,''):h('img',{src:p.url,alt:''})))) : h('p',{class:'meta',style:'margin:6px 0 0',text:'ไฟล์ใหญ่ได้ ระบบจะแปลงแต่ละหน้าเป็นรูปให้เปิดดูในมือถือได้ลื่น'}),
+      pdfIn);
+  };
+  pdfIn.addEventListener('change', async()=>{
+    const f=pdfIn.files[0]; pdfIn.value=''; if(!f) return;
+    err.textContent=''; save.disabled=true;
+    try{
+      const r=await pdfToPages(f,(i,n)=>drawPdf('กำลังแปลงหน้า '+i+'/'+n+'…'));
+      pages=r.pages; if (!title.value.trim()) title.value=f.name.replace(/\.pdf$/i,'');
+      drawPdf(r.total>MAX_PAGES ? 'ไฟล์มี '+r.total+' หน้า ใช้ได้ '+MAX_PAGES+' หน้าแรก' : '');
+    }catch(e){ drawPdf(); err.textContent=errText(e); }
+    save.disabled=false;
+  });
+  drawPdf();
+  save.addEventListener('click', async()=>{
+    err.textContent='';
+    if (!title.value.trim()){ err.textContent='ใส่ชื่อคู่มือก่อนบันทึก'; title.focus(); return; }
+    if (!items.length && !pages.length){ err.textContent='แนบไฟล์ PDF หรือรูปแบบตัวอย่างอย่างน้อย 1 รูป'; return; }
+    save.disabled=true;
+    try{
+      const pIds=await uploadItems(pages,(n,tot)=>save.textContent='อัปโหลดหน้า PDF '+n+'/'+tot);
+      const iIds=await uploadItems(items,(n,tot)=>save.textContent='อัปโหลดรูป '+n+'/'+tot);
+      save.textContent='กำลังบันทึก…';
+      const doc=await api('saveTemplate',{template:{id:t?t.id:null, title:title.value.trim(), notes:notes.value.trim(),
+        checklist:check.value.split('\n').map(s=>s.trim()).filter(Boolean), images:iIds, pages:pIds,
+        dueAt: due.value ? new Date(due.value+'T23:59:59').getTime() : null}});
+      $('#dlg').close(); toast(t?'บันทึกการแก้ไขแล้ว':'ส่งคู่มือแล้ว ทุกสาขาเห็นได้ทันที');
+      await sync(); if (!t) location.hash='t-'+doc.id;
+    }catch(e){ err.textContent=errText(e); save.disabled=false; save.textContent=t?'บันทึกการแก้ไข':'ส่งคู่มือให้ทุกสาขา'; }
+  });
+  openDialog(t?'แก้ไขคู่มือ':'ส่งคู่มือใหม่', h('div',{},
+    h('label',{class:'f'}, h('span',{text:'ชื่อคู่มือ'}), title), pdfBox,
+    h('div',{style:'margin:16px 0'}, h('span',{style:'display:block;font-weight:600;font-size:.92rem;margin-bottom:5px',text:'รูปแบบตัวอย่าง (ไม่บังคับ)'}), photoPicker(items)),
+    h('label',{class:'f'}, h('span',{text:'กำหนดส่ง (ไม่บังคับ)'}), due, h('small',{text:'สาขาต้องส่งรูปภายในสิ้นวันนี้ ถ้าส่งหลังจากนี้จะขึ้นว่าส่งช้า'})),
+    h('label',{class:'f'}, h('span',{text:'คำอธิบาย'}), notes),
+    h('label',{class:'f'}, h('span',{text:'จุดที่ต้องเช็ก'}), check, h('small',{text:'บรรทัดละหนึ่งข้อ สาขาจะเห็นเป็นรายการให้เช็กก่อนส่ง'})), err),
+    [h('button',{class:'btn',onclick:()=>$('#dlg').close(),text:'ยกเลิก'}), save]);
+}
+async function deleteTemplate(t){
+  if (!confirm('ลบคู่มือ '+t.title+' ? งานที่สาขาเคยส่งจะยังอยู่')) return;
+  try{ await api('deleteTemplate',{id:t.id}); toast('ลบคู่มือแล้ว'); location.hash='templates'; await sync(); }catch(e){ toast(errText(e)); }
+}
+
+function tickList(items, checks, editable, showMiss){
+  return items.map((c,i)=>{
+    const miss=showMiss && !checks[i];
+    const li=h('li',{class:(editable?'tick':'')+(checks[i]?' done':'')+(miss?' miss':''),role:'checkbox','aria-checked':String(!!checks[i]),'aria-disabled':editable?null:'true',tabindex:editable?'0':null,text:c},
+      miss ? h('small',{class:'miss-tag',text:'ยังไม่ผ่าน'}) : null);
+    if (editable){
+      li.onclick=()=>{ checks[i]=!checks[i]; li.classList.toggle('done',checks[i]); li.setAttribute('aria-checked',String(checks[i])); };
+      li.onkeydown=e=>{ if(e.key===' '||e.key==='Enter'){ e.preventDefault(); li.click(); } };
+    }
+    return li;
+  });
+}
+
+function openSubmitForm(tid, place){
+  const items=[];
+  const sel=h('select',{}, S.templates.map(t=>h('option',{value:t.id,selected:t.id===tid?true:null,text:t.title})));
+  const placeIn=h('input',{type:'text',value:place||'',placeholder:'เช่น ชั้น 3 โซนเครื่องนอน – Set B'});
+  const note=h('textarea',{placeholder:'มีอะไรอยากบอกหัวหน้าไหม เช่น สินค้าบางชิ้นหมด'});
+  const ref=h('div',{style:'margin:-4px 0 16px'});
+  const drawRef=()=>{ const t=tplById(sel.value); ref.replaceChildren(); const d=dueInfo(t,false); if (d) ref.append(h('p',{style:'margin:0 0 10px'}, h('span',{class:d.cls,text:d.text})));
+    if (t && (t.checklist||[]).length) ref.append(h('div',{class:'section-t',style:'margin-top:0',text:'เช็กก่อนส่ง'}), h('ul',{class:'checklist'}, tickList(t.checklist, t.checklist.map(()=>false), true, false))); };
+  sel.addEventListener('change',drawRef); drawRef();
+  const err=h('p',{class:'err'});
+  const send=h('button',{class:'btn primary',text:'ส่งให้ตรวจ'});
+  send.addEventListener('click', async()=>{
+    err.textContent='';
+    if (!items.length){ err.textContent='เพิ่มรูปที่จัดเสร็จอย่างน้อย 1 รูป'; return; }
+    send.disabled=true;
+    try{
+      const ids=await uploadItems(items,(n,tot)=>send.textContent='กำลังอัปโหลดรูป '+n+'/'+tot);
+      send.textContent='กำลังส่ง…';
+      const s=await api('submit',{templateId:sel.value, place:placeIn.value.trim(), images:ids, note:note.value.trim()});
+      upsertSub(s); markSeen('sub', s.id);
+      $('#dlg').close(); toast('ส่งงานแล้ว รอหัวหน้าตรวจ'); location.hash='mine'; render();
+    }catch(e){ err.textContent=errText(e); send.disabled=false; send.textContent='ส่งให้ตรวจ'; }
+  });
+  openDialog('ส่งรูปที่จัดเสร็จ', h('div',{},
+    h('label',{class:'f'}, h('span',{text:'จัดตามคู่มือไหน'}), sel), ref,
+    h('label',{class:'f'}, h('span',{text:'จุดที่จัด'}), placeIn),
+    h('div',{style:'margin-bottom:16px'}, h('span',{style:'display:block;font-weight:600;font-size:.92rem;margin-bottom:5px',text:'รูปที่จัดเสร็จ'}), photoPicker(items),
+      h('small',{style:'color:var(--muted);font-size:.82rem',text:'ถ่ายจากมุมเดียวกับรูปในคู่มือ หัวหน้าจะเทียบได้ง่ายขึ้น'})),
+    h('label',{class:'f'}, h('span',{text:'ข้อความถึงหัวหน้า (ไม่บังคับ)'}), note), err),
+    [h('button',{class:'btn',onclick:()=>$('#dlg').close(),text:'ยกเลิก'}), send]);
+}
+
+/* ---------- one submission ---------- */
+function threadEl(s){
+  const cs=s.comments||[];
+  if (!cs.length) return h('div',{class:'thread'}, h('p',{class:'thread-empty',text:'ยังไม่มีข้อความ'}));
+  return h('div',{class:'thread'}, cs.map(c=>h('div',{class:'msg'+(c.by===S.me.id?' me':'')+(c.status?' st-'+c.status:'')},
+    h('div',{class:'who'}, person(c.by,c.byName), h('span',{text:fmt(c.at)}), c.status ? badge(c.status) : null), c.text)));
+}
+function refreshOpen(){
+  const o=S.open; if (!o) return; const s=S.subs.find(x=>x.id===o.id);
+  if (!s){ $('#dlg').close(); return; }
+  o.thread.replaceWith(o.thread=threadEl(s)); o.status.replaceChildren(badge(statusOf(s)));
+  if (unread(s)) markSeen('sub', s.id);
+}
+function openSub(id){
+  const s=S.subs.find(x=>x.id===id); if (!s) return; const t=tplById(s.templateId);
+  const items=(t&&t.checklist)||[];
+  const rv=s.review;
+  const saved = rv && Array.isArray(rv.checks) && rv.checks.length===items.length ? rv.checks : (rv && rv.status==='approved' ? items.map(()=>true) : null);
+  const checks = saved ? saved.slice() : items.map(()=>false);
+  const editable = mgrMode() || (isBranch() && !saved);
+  const msg=h('textarea',{placeholder: mgrMode() ? 'พิมพ์ความเห็น หรือบอกจุดที่ต้องแก้' : 'พิมพ์ข้อความถึงหัวหน้า', style:'min-height:70px'});
+  const err=h('p',{class:'err'});
+  const status=h('span',{}, badge(statusOf(s)));
+  const thread=threadEl(s);
+  const busy=async(btn, fn)=>{ err.textContent=''; btn.disabled=true; try{ await fn(); }catch(e){ err.textContent=errText(e); } btn.disabled=false; };
+  const sendMsg=h('button',{class:'btn',text:'ส่งข้อความ'});
+  sendMsg.onclick=()=>busy(sendMsg, async()=>{
+    const text=msg.value.trim(); if (!text){ msg.focus(); return; }
+    const r=await api('comment',{id:s.id, text}); upsertSub(r); msg.value=''; render();
+  });
+  const review=(st,btn)=>busy(btn, async()=>{
+    const text=msg.value.trim();
+    if (st==='rework' && !text){ err.textContent='บอกสาขาว่าต้องแก้ตรงไหน ก่อนกดให้แก้ไข'; msg.focus(); return; }
+    const sendChecks = (st==='approved' && !checks.some(Boolean)) ? items.map(()=>true) : checks;
+    const r=await api('review',{id:s.id, status:st, text, checks:sendChecks});
+    upsertSub(r); $('#dlg').close(); toast(st==='approved'?'บันทึกว่าผ่านแล้ว':'ส่งกลับให้แก้ไขแล้ว'); render();
+  });
+  const foot=[];
+  if (isCeo()){ foot.push(h('button',{class:'btn',onclick:()=>$('#dlg').close(),text:'ปิด'})); msg.hidden=true; }
+  else if (mgrMode()){
+    if (isAdmin()) foot.push(h('button',{class:'btn linkdel',onclick:()=>deleteSub(s),text:'ลบงานนี้'}));
+    const badB=h('button',{class:'btn bad',text:'ให้แก้ไข'}); badB.onclick=()=>review('rework',badB);
+    const okB=h('button',{class:'btn ok',text:'ผ่าน'}); okB.onclick=()=>review('approved',okB);
+    foot.push(sendMsg, badB, okB);
+  } else {
+    const st=statusOf(s);
+    if (st==='pending') foot.push(h('button',{class:'btn bad',onclick:()=>cancelSub(s),text:'ยกเลิกการส่ง'}));
+    if (st==='rework') foot.push(h('button',{class:'btn',onclick:()=>openSubmitForm(s.templateId,s.place),text:'ส่งงานใหม่'}));
+    sendMsg.className='btn primary'; foot.push(sendMsg);
+  }
+  const note = mgrMode() ? 'ติ๊กข้อที่ผ่าน ระบบจะบันทึกตอนกดผ่านหรือให้แก้ไข สาขาจะเห็นตามนี้' : (!saved && isBranch()) ? 'แตะเพื่อเช็กเองได้ หัวหน้าจะติ๊กตอนตรวจ' : '';
+  const body=h('div',{},
+    h('div',{class:'meta',style:'margin-bottom:12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center'}, person(s.branchId), h('span',{text:fmt(s.createdAt)}), s.place?h('span',{text:'· '+s.place}):null, isLate(s,t) ? h('span',{class:'badge late',text:'ส่งช้า'}) : null, status),
+    h('div',{class:'compare'},
+      h('div',{}, h('h5',{text:'คู่มือ'+(t?': '+t.title:'')}), h('div',{class:'imgs'}, t ? visuals(t).map(id=>img(id,'คู่มือ',{onclick:()=>lightbox(id)})) : h('div',{class:'imgfail',text:'คู่มือนี้ถูกลบไปแล้ว'}))),
+      h('div',{}, h('h5',{text:'ที่จัดจริง'}), h('div',{class:'imgs'}, (s.images||[]).map(id=>img(id,'รูปที่ส่งมา',{onclick:()=>lightbox(id)}))))),
+    items.length ? [h('div',{class:'section-t',text:'จุดที่ต้องเช็ก'}), note ? h('p',{class:'meta',style:'margin:-6px 0 6px',text:note}) : null,
+      h('ul',{class:'checklist'}, tickList(items, checks, editable, !!saved && !mgrMode()))] : null,
+    h('div',{class:'section-t',text:'ข้อความ'}), thread, msg, err);
+  openDialog(mgrMode()?'ตรวจงาน':'งานที่ส่ง', body, foot, true);
+  S.open={id:s.id, thread, status};
+  markSeen('sub', s.id); renderChrome();
+}
+async function cancelSub(s){
+  if (!confirm('ยกเลิกงานที่ส่งนี้?')) return;
+  try{ await api('cancel',{id:s.id}); S.subs=S.subs.filter(x=>x.id!==s.id); $('#dlg').close(); toast('ยกเลิกการส่งแล้ว'); render(); }catch(e){ toast(errText(e)); }
+}
+async function deleteSub(s){
+  if (!confirm('ลบงานนี้ถาวร? รูปและข้อความของงานนี้จะหายไป สาขาจะต้องส่งใหม่')) return;
+  try{ await api('deleteSubmission',{id:s.id}); S.subs=S.subs.filter(x=>x.id!==s.id); $('#dlg').close(); toast('ลบงานแล้ว'); render(); }catch(e){ toast(errText(e)); }
+}
+
+/* ---------- boot ---------- */
+(function boot(){
+  try{ S.token=sessionStorage.getItem('dc-token'); }catch(e){}
+  if (S.token){
+    try{ const p=JSON.parse(atob(S.token.split('.')[0].replace(/-/g,'+').replace(/_/g,'/'))); S.me={id:p.id, role:p.role, name:''}; loadSeen(); }catch(e){ S.token=null; }
+  }
+  route();
+  if (S.token) sync();
+  setInterval(()=>{ if (document.visibilityState==='visible' && S.token) sync(); }, POLL_MS);
+  document.addEventListener('visibilitychange',()=>{ if (document.visibilityState==='visible' && S.token) sync(); });
+})();
+</script>
+</body>
+</html>
